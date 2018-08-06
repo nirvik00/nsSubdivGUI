@@ -18,9 +18,9 @@ void ofApp::setup() {
 	gui.add(gen5.setup("Score Gen-5", 0, 0, 100));
 	gui.add(gen6.setup("Score Gen-6", 0, 0, 100));
 	gui.add(gen7.setup("Score Gen-7", 0, 0, 100));
+	ofSetWindowTitle("Subdivision Dashboard");
 
 	/* AREA SUBDIVISION, CONTROL VECTORS, GEOMETRY EQUIVALENCE */
-	ofSetWindowTitle("Subdivision Dashboard");
 	vecBoundaryRect.clear();	//	boundary rectangle
 	vecIniRect.clear();			//	initial rectangle which undergoes transformation
 	vecOutRect.clear();			//	output rectangle : pendant of area tree
@@ -28,19 +28,28 @@ void ofApp::setup() {
 	vecCtrlVec.clear();			//	vector of control vector : for all iterations in 1 generation
 	scoreVec.clear();			//	vector of scores for 1 generation
 
-	/* ONE RECT ONLY */
-	//int U = 2; int V = 1;
+	/* GOTO GENERATION FUNCTIONS */
+	nsIniGen();
+	/*
+	if (global_iteration_counter == 0) nsIniGen();
+	else nsNextGen();
+	global_iteration_counter++;
+	*/
+}
 
-	/* MULTIPLE RECTS */
-	int U = 5; int V = 2;
+void clrVec() {}
 
+void ofApp::nsNextGen() {}
+
+void ofApp::nsIniGen(){
+	/* ONE RECT ONLY *///int U = 2; int V = 1;
+	/* MULTIPLE RECTS */int U = 5; int V = 2;
 	for (unsigned int i = 300; i < 300 * U; i += 325) {
 		for (unsigned int j = 0; j < 300 * V; j += 325) {
 			a = Pt(50 + i, 50 + j);
 			b = Pt(a.x + 300, a.y);
 			c = Pt(a.x + 300, b.y + 150);
 			d = Pt(a.x, c.y);			
-
 			/* AREA */
 			float totalArea = ar.getTotalAr();	// set total area from elements
 			ar.initSubdiv();					// initialize the sub-division module
@@ -48,14 +57,12 @@ void ofApp::setup() {
 			parentVec.clear(); 
 			parentVec = ar.getParentVec();		
 			vecParentVec.push_back(parentVec);
-
 			/* CONTROL */
 			ctrlVector cv;						 // control vector
 			/*  initialize the control vector */
 			cvV.clear();						// clear the control vector
 			cvV = cv.newIntVector(NUM);
 			vecCtrlVec.push_back(cvV);
-
 			/* RECTANGLE */
 			Rect R0;									// Initialize the rectangle
 			Rect r = R0.genIniRect(a, 1, 2, totalArea); // setup the initial rectangle
@@ -65,7 +72,6 @@ void ofApp::setup() {
 			vecBoundaryRect.push_back(r);
 			r.clrState();
 			r.subdivide(r, 0, 0, parentVec[0]);			// construct the vectors of rects from initial rect
-
 			vector<Rect> rv;
 			rv.clear();
 			rv = r.getRectVector();						// get the vector of output vectors
@@ -88,7 +94,6 @@ void ofApp::draw() {
 	ofDrawBitmapString("Press 'c' to change color scheme", 10, 530);
 	ofDrawBitmapString("Press 'p' to take a screenshot", 10, 545);
 	ofDrawBitmapString("Press 'd' to display metrics", 10, 560);
-	
 	ofDrawBitmapString("Contact\n-------", 10, 600);
 	ofDrawBitmapString("Nirvik Saha (GIT)\nDennis R Shelden (GIT)\nJohn R Haymaker (P+W)", 10, 630);
 	for (int i = 0; i < vecBoundaryRect.size(); i++) {
@@ -157,57 +162,18 @@ void ofApp::keyPressed(int key) {
 	}
 }
 
-void ofApp::keyReleased(int key){
-
-}
-
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-void ofApp::mousePressed(int x, int y, int button){
-}
-
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-void ofApp::mouseExited(int x, int y){
-
-}
-
-void ofApp::windowResized(int w, int h){
-
-}
-
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
-}
-
 void ofApp::storePreferences() {
 	for (int i = 0; i < vecCtrlVec.size(); i++) {
-		gaOpt.addCtrlEntry(vecCtrlVec[i], vecParentVec[i], scoreVec[i]);
+		gaOpt.addCtrlEntry(vecCtrlVec[i], vecParentVec[i], scoreVec[i], global_iteration_counter);
 	}
 }
+
 void ofApp::displayGenerationMetrics(){
 	cout << "\nscores : ";
 	for (int i = 0; i < scoreVec.size(); i++) {
 		cout << i << ") " << scoreVec[i] << ", ";
 	}
 	cout << endl;
-
 	cout << "\nControl Vectors : " << endl;
 	for (int i = 0; i < vecCtrlVec.size(); i++) {
 		cout << i << ") " << "Control Vector Score: " << scoreVec[i] << ", Vector: ";
@@ -216,7 +182,6 @@ void ofApp::displayGenerationMetrics(){
 		}
 		cout << endl;
 	}	
-
 	cout << "\nBinary Tree (s) : " << endl;
 	for (int i = 0; i < vecParentVec.size(); i++) {
 		cout << "\n" << i << ") " <<  "iteration  " << endl;
@@ -232,11 +197,22 @@ void ofApp::displayGenerationMetrics(){
 			if (nameR != "") { cout << "\t" << nameR << " : "; displayAreaVec(cRA); cout << endl; }
 		}
 	}
-
 	cout << "--------------------------" << endl;
 }
+
 void ofApp::displayAreaVec(std::vector<float> vec) {
 	for (int i = 0; i < vec.size(); i++) {
 		std::cout << vec[i] << ", ";
 	}
 }
+
+void ofApp::keyReleased(int key) {}
+void ofApp::mouseMoved(int x, int y) {}
+void ofApp::mouseDragged(int x, int y, int button) {}
+void ofApp::mousePressed(int x, int y, int button) {}
+void ofApp::mouseReleased(int x, int y, int button) {}
+void ofApp::mouseEntered(int x, int y) {}
+void ofApp::mouseExited(int x, int y) {}
+void ofApp::windowResized(int w, int h) {}
+void ofApp::gotMessage(ofMessage msg) {}
+void ofApp::dragEvent(ofDragInfo dragInfo) {}

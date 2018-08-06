@@ -28,6 +28,9 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		/*	MY METHODS  */
+		void clrVec();
+		void nsIniGen();
+		void nsNextGen();
 		void storePreferences();
 		void displayGenerationMetrics();
 		void displayAreaVec(std::vector<float> vec);
