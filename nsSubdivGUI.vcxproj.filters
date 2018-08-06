@@ -41,6 +41,7 @@
     <ClCompile Include="src\ctrlVector.cpp" />
     <ClCompile Include="src\Pt.cpp" />
     <ClCompile Include="src\Rect.cpp" />
+    <ClCompile Include="src\GaOpt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -97,6 +98,7 @@
     <ClInclude Include="src\ctrlVector.h" />
     <ClInclude Include="src\Pt.h" />
     <ClInclude Include="src\Rect.h" />
+    <ClInclude Include="src\GaOpt.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

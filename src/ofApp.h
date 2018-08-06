@@ -6,6 +6,7 @@
 #include "Pt.h"
 #include "Rect.h"
 #include "ctrlVector.h"
+#include "GaOpt.h"
 
 class ofApp : public ofBaseApp{
 
@@ -26,29 +27,43 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		/*	MY METHODS  */
+		void storePreferences();
+		void displayGenerationMetrics();
+		void displayAreaVec(std::vector<float> vec);
+
 		/*my global variables*/
 		Area ar;
-		vector<Parent> parentVec;
+		GaOpt gaOpt;
 		vector<colArStr> colrArStructVec = ar.genColorVec();
-
-		vector< vector<int> > vecIntVec; // vector of control vectors
 		int NUM = 10;
 
-		/* single elements*/
-		Pt a, b, c, d; // points
+		/* TEMPORARY OR single elements*/
+		Pt a, b, c, d;							// points
+		vector<Parent> parentVec;				// tree of subdivision : area, naming
+		vector<int> cvV;						//control vector : to control subdivisions
+
 
 		/* vector of single elements*/
 		vector<Area> vecArea;
-		vector< vector<Parent> > vecParentVec;
-		vector<Rect> vecBoundaryRect;
-		vector<Rect> vecIniRect;
-		vector< vector<Rect> > vecOutRect;
+		vector<Rect> vecBoundaryRect;			// agnostic to code : position of system
+		vector<Rect> vecIniRect;				// initial rect which will get transformed
+		vector< vector<Rect> > vecOutRect;		// contain the pendant geometry
 
 		/* GLOBAL COUNTER FOR NUMBER OF CHANGES */
-		int global_counter = 0;
+		int global_image_counter = 0;
+		int global_iteration_counter = 0;
 
 		/* GUI */
 		ofxPanel gui;
-		ofxIntSlider gen0, gen1, gen2, gen3, gen4, gen5, gen6, gen7, gen8, gen9;
+		ofxIntSlider gen0, gen1, gen2, gen3, gen4, gen5, gen6, gen7;
+		
+		/* GUI SCORES */
+		vector<int>scoreVec;					// score of all sliders taken per generation
+
+		/* GLOBAL VECTORS FOR DNA */
+		vector< vector<int> > vecCtrlVec;		// collection of control vectors for this generations
+		vector< vector<Parent> > vecParentVec;	// collection of family trees for this generations
 		
 };
+
