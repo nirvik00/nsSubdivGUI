@@ -52,7 +52,7 @@ void ofApp::nsNextGen() {
 	vecCtrlVec.clear();			//	vector of control vector : for all iterations in 1 generation
 	scoreVec.clear();			//	vector of scores for 1 generation
 
-	cout << "next generation";
+	cout << "next generation : " << global_iteration_counter << endl;
 	if (opt_empty == 0) {
 		global_iteration_counter = 0;
 		setup();

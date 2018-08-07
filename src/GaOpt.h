@@ -81,6 +81,9 @@ public:
 	/* RESTRICT */
 	void restrict(int t);
 
+	/* CROSS-OVER */
+	void crossControl();
+
 private:
 	std::vector<CtrlStr> ctrlStrVec;
 	std::vector<CtrlStr> popCtrlStrVec;

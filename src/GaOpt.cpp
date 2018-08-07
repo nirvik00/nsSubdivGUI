@@ -13,8 +13,9 @@ void GaOpt::propagateScores() {
 		int score = C.score;
 		int gen = C.gen;
 		//int n = gen*gen*score;
-		int n = 10*gen*score;
+		int n = gen*score;
 		for (int j = 0; j < n; j++) {
+			//cout << "\nControl propagation \n";
 			popCtrlStrVec.push_back(C);
 		}
 	}
@@ -23,12 +24,12 @@ void GaOpt::propagateScores() {
 		int score = P.score;
 		int gen = P.gen;		
 		//int n = gen*gen*score;
-		int n = 10 * gen*score;
+		int n = gen*score;
 		for (int j = 0; j < n; j++) {
+			//cout << "\nParent propagation \n";
 			popParentStrVec.push_back(P);
 		}
 	}
-	
 }
 void GaOpt::restrict(int t) {
 	std::function<bool(CtrlStr, CtrlStr)> sortCtrl = SortCtrlDesc();
@@ -86,4 +87,16 @@ std::vector<ParentStr> GaOpt::getParent(int n) {
 		result.push_back(popParentStrVec[i]);
 	}
 	return result;
+}
+
+void GaOpt::crossControl() {
+	for (int i = 0; i < popCtrlStrVec.size(); i++) {
+		int a = ofRandom(0,popCtrlStrVec.size()-1);
+		int b= ofRandom(0, popCtrlStrVec.size() - 1);
+		CtrlStr A = popCtrlStrVec[a];
+		CtrlStr B = popCtrlStrVec[b];
+		std::vector<int> ctrlStrA = A.ctrlVec; 
+		std::vector<int> ctrlStrB = B.ctrlVec;
+
+	}
 }
