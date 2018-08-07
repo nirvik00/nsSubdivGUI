@@ -31,6 +31,7 @@ void GaOpt::propagateScores() {
 		}
 	}
 }
+
 void GaOpt::restrict(int t) {
 	std::function<bool(CtrlStr, CtrlStr)> sortCtrl = SortCtrlDesc();
 	std::sort(popCtrlStrVec.begin(), popCtrlStrVec.end(), sortCtrl);
@@ -43,22 +44,26 @@ void GaOpt::restrict(int t) {
 	for (int i = 0; i < newPopCtrlStr.size(); i++) {
 		popCtrlStrVec.push_back(newPopCtrlStr[i]);
 	}
+	std::vector<CtrlStr> crossCtrlVec = crossControl();
+	for (int i = 0; i < crossCtrlVec.size(); i++) {
+		popCtrlStrVec.push_back(crossCtrlVec[i]);
+	}
 	newPopCtrlStr.clear();
 
 	std::function<bool(ParentStr, ParentStr)> sorter = SortParentDesc();
 	std::sort(popParentStrVec.begin(), popParentStrVec.end(), sorter);
-	std::vector<ParentStr>newPopParentStrVec;
+	std::vector<ParentStr>newPopParentStrVec; newPopParentStrVec.clear();
 	for (int i = 0; i < popParentStrVec.size(); i++) {
 		if (newPopParentStrVec.size() > t) break;
 		newPopParentStrVec.push_back(popParentStrVec[i]);
 	}
-	popCtrlStrVec.clear();
+	popParentStrVec.clear();
 	for (int i = 0; i < newPopParentStrVec.size(); i++) {
 		popParentStrVec.push_back(newPopParentStrVec[i]);
 	}
 	newPopParentStrVec.clear();
-
 }
+
 std::vector<CtrlStr> GaOpt::getCtrl(int n) {
 	std::function<bool(CtrlStr, CtrlStr)> sortCtrl = SortCtrlDesc();
 	std::sort(popCtrlStrVec.begin(), popCtrlStrVec.end(), sortCtrl);
@@ -89,14 +94,27 @@ std::vector<ParentStr> GaOpt::getParent(int n) {
 	return result;
 }
 
-void GaOpt::crossControl() {
+std::vector<CtrlStr> GaOpt::crossControl() {
+	std::vector<CtrlStr> crossCtrlVec; crossCtrlVec.clear();
 	for (int i = 0; i < popCtrlStrVec.size(); i++) {
 		int a = ofRandom(0,popCtrlStrVec.size()-1);
 		int b= ofRandom(0, popCtrlStrVec.size() - 1);
-		CtrlStr A = popCtrlStrVec[a];
+		CtrlStr A = popCtrlStrVec[a]; int gen = A.gen; int score = A.score;
 		CtrlStr B = popCtrlStrVec[b];
 		std::vector<int> ctrlStrA = A.ctrlVec; 
 		std::vector<int> ctrlStrB = B.ctrlVec;
-
+		std::vector<int> ctrlStrC; ctrlStrC.clear();
+		int n = ctrlStrA.size();
+		for (int j = 0; j < ctrlStrA.size(); j++) {
+			if (j < n / 2) {
+				ctrlStrC.push_back(ctrlStrA[j]);
+			}
+			else {
+				ctrlStrC.push_back(ctrlStrB[j]);
+			}
+		}
+		CtrlStr X(ctrlStrC, gen, score);
+		crossCtrlVec.push_back(X);
 	}
+	return crossCtrlVec;
 }

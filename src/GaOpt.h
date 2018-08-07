@@ -75,14 +75,11 @@ public:
 	std::vector<CtrlStr> getCtrl(int);
 	std::vector<ParentStr> getParent(int);
 
-	/* RANDOM SHUFFLES */
-	int myrandom(int);
-
 	/* RESTRICT */
 	void restrict(int t);
 
 	/* CROSS-OVER */
-	void crossControl();
+	std::vector<CtrlStr> crossControl();
 
 private:
 	std::vector<CtrlStr> ctrlStrVec;
