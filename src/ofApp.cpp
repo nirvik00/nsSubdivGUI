@@ -10,14 +10,14 @@ void ofApp::setup() {
 	srand(time(NULL));
 	/* GUI */
 	gui.setup("SCORES");
-	gui.add(gen0.setup("Score Gen-0", 0, 0, 100));
-	gui.add(gen1.setup("Score Gen-1", 0, 0, 100));
-	gui.add(gen2.setup("Score Gen-2", 0, 0, 100));
-	gui.add(gen3.setup("Score Gen-3", 0, 0, 100));
-	gui.add(gen4.setup("Score Gen-4", 0, 0, 100));
-	gui.add(gen5.setup("Score Gen-5", 0, 0, 100));
-	gui.add(gen6.setup("Score Gen-6", 0, 0, 100));
-	gui.add(gen7.setup("Score Gen-7", 0, 0, 100));
+	gui.add(gen0.setup("Score Gen-0", 1, 0, 100));
+	gui.add(gen1.setup("Score Gen-1", 1, 0, 100));
+	gui.add(gen2.setup("Score Gen-2", 1, 0, 100));
+	gui.add(gen3.setup("Score Gen-3", 1, 0, 100));
+	gui.add(gen4.setup("Score Gen-4", 1, 0, 100));
+	gui.add(gen5.setup("Score Gen-5", 1, 0, 100));
+	gui.add(gen6.setup("Score Gen-6", 1, 0, 100));
+	gui.add(gen7.setup("Score Gen-7", 1, 0, 100));
 	ofSetWindowTitle("Subdivision Dashboard");
 
 	/* AREA SUBDIVISION, CONTROL VECTORS, GEOMETRY EQUIVALENCE */
@@ -29,17 +29,108 @@ void ofApp::setup() {
 	scoreVec.clear();			//	vector of scores for 1 generation
 
 	/* GOTO GENERATION FUNCTIONS */
-	nsIniGen();
-	/*
-	if (global_iteration_counter == 0) nsIniGen();
-	else nsNextGen();
+	/* GENERATE RANDOM ITERATIONS */
+	//nsIniGen();
+	
+	/* USING THE LEARNING / OPTIMIZATION ALGORITHMS */
+	if (global_iteration_counter == 0) {
+		nsIniGen();
+	}
+	else {
+		nsNextGen();
+	}
 	global_iteration_counter++;
-	*/
 }
 
 void clrVec() {}
 
-void ofApp::nsNextGen() {}
+void ofApp::nsNextGen() {
+	vecBoundaryRect.clear();	//	boundary rectangle
+	vecIniRect.clear();			//	initial rectangle which undergoes transformation
+	vecOutRect.clear();			//	output rectangle : pendant of area tree
+	vecParentVec.clear();		//	parent tree : for all iterations in 1 generation
+	vecCtrlVec.clear();			//	vector of control vector : for all iterations in 1 generation
+	scoreVec.clear();			//	vector of scores for 1 generation
+
+	cout << "next generation";
+	if (opt_empty == 0) {
+		global_iteration_counter = 0;
+		setup();
+	}
+	GAOPT.propagateScores();
+	
+	vector<CtrlStr> cV = GAOPT.getCtrl(8); 
+	for (int i = 0; i < cV.size(); i++) {
+		vecCtrlVec.push_back(cV[i].ctrlVec);
+	}
+
+	vector<ParentStr> pV = GAOPT.getParent(8);
+	for (int i = 0; i < pV.size(); i++) {
+		vecParentVec.push_back(pV[i].parentVec);
+	}
+
+	GAOPT.restrict(1000);
+
+	int U = 5; int V = 2; int E = -1;
+	for (unsigned int i = 300; i < 300 * U; i += 325) {
+		for (unsigned int j = 0; j < 300 * V; j += 325) {
+			E++;
+
+			a = Pt(50 + i, 50 + j);
+			b = Pt(a.x + 300, a.y);
+			c = Pt(a.x + 300, b.y + 150);
+			d = Pt(a.x, c.y);
+
+			float totalArea = ar.getTotalAr();	
+			vector<Parent> parentVec = vecParentVec[E];
+			vector<int> cV = vecCtrlVec[E];
+			for (int m = 0; m < cV.size(); m++) {
+				cout << cV[m] << ", ";
+			}
+			cout << endl;
+			/* RECTANGLE */
+			Rect R0;									// Initialize the rectangle
+			Rect r = R0.genIniRect(a, 1, 2, totalArea); // setup the initial rectangle
+			r.setParentVec(parentVec);					// set the area tree to the rect
+			r.setIntVector(cV);						// generate & set control vector to Rect
+			vecIniRect.push_back(r);					//make a vector of initial rectangles
+			vecBoundaryRect.push_back(r);
+			r.clrState();
+			r.subdivide(r, 0, 0, parentVec[0]);			// construct the vectors of rects from initial rect
+			vector<Rect> rv;
+			rv.clear();
+			rv = r.getRectVector();						// get the vector of output vectors
+			vecOutRect.push_back(rv);					// vector of output vectors from subdivision of initial rectangles
+		}
+	}
+
+
+	/* DISPLAY THE PARENT -CHILD / AREAS */
+	/*
+	cout << "\n\nParent Child :  " << endl;
+	for (int i = 0; i < vecParentVec.size(); i++) {
+	cout << "Iteration :  " << i << endl;
+	for (int j = 0; j < vecParentVec[i].size(); j++) {
+	vecParentVec[i][j].display();
+	}
+	cout << endl;
+	}
+	*/
+
+
+	/* DISPLAY THE CONTROL VECTORS */
+	/*
+	cout << "Control Vectors :  " << endl;
+	for (int i = 0; i < vecCtrlVec.size(); i++) {
+	cout << "Iteration :  " << i << endl;
+	for (int j = 0; j < vecCtrlVec[i].size(); j++) {
+	cout << vecCtrlVec[i][j] << "," ;
+	}
+	cout << endl;
+	}
+	*/
+
+}
 
 void ofApp::nsIniGen(){
 	/* ONE RECT ONLY *///int U = 2; int V = 1;
@@ -63,6 +154,7 @@ void ofApp::nsIniGen(){
 			cvV.clear();						// clear the control vector
 			cvV = cv.newIntVector(NUM);
 			vecCtrlVec.push_back(cvV);
+			
 			/* RECTANGLE */
 			Rect R0;									// Initialize the rectangle
 			Rect r = R0.genIniRect(a, 1, 2, totalArea); // setup the initial rectangle
@@ -81,8 +173,13 @@ void ofApp::nsIniGen(){
 }
 
 void ofApp::update() {
-	scoreVec.clear();
-	scoreVec.insert(scoreVec.end(), { gen0,gen1,gen2,gen3,gen4,gen5,gen6,gen7 });
+	
+	/* USING THE LEARNING / OPTIMIZATION ALGORITHMS */
+	/*
+	if (global_iteration_counter == 0) nsIniGen();
+	else nsNextGen();
+	global_iteration_counter++;
+	*/
 }
 
 void ofApp::draw() {
@@ -93,7 +190,7 @@ void ofApp::draw() {
 	ofDrawBitmapString("Press 'n' to create next generation", 10, 515);
 	ofDrawBitmapString("Press 'c' to change color scheme", 10, 530);
 	ofDrawBitmapString("Press 'p' to take a screenshot", 10, 545);
-	ofDrawBitmapString("Press 'd' to display metrics", 10, 560);
+	ofDrawBitmapString("Press 'm' to save & display metrics", 10, 560);
 	ofDrawBitmapString("Contact\n-------", 10, 600);
 	ofDrawBitmapString("Nirvik Saha (GIT)\nDennis R Shelden (GIT)\nJohn R Haymaker (P+W)", 10, 630);
 	for (int i = 0; i < vecBoundaryRect.size(); i++) {
@@ -150,21 +247,28 @@ void ofApp::keyPressed(int key) {
 		storePreferences();
 		/* GO TO NEXT GENERATION*/
 		setup();
-	}else if (key == 'c') {
+	}else if (key == 'c' || key == 'C') {
 		colrArStructVec = ar.genColorVec();
-	}else if (key == 'p') {
+	}else if (key == 'p' || key == 'P') {
 		global_image_counter++;
 		ofImage screenshot;
 		screenshot.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
 		screenshot.saveImage("screenshot"+to_string(global_image_counter)+".png");
-	}else if (key == 'd') {
+	}else if (key == 'm' || key == 'M') {
 		displayGenerationMetrics();
 	}
 }
 
 void ofApp::storePreferences() {
-	for (int i = 0; i < vecCtrlVec.size(); i++) {
-		gaOpt.addCtrlEntry(vecCtrlVec[i], vecParentVec[i], scoreVec[i], global_iteration_counter);
+	scoreVec.clear();
+	scoreVec.insert(scoreVec.end(), { gen0,gen1,gen2,gen3,gen4,gen5,gen6,gen7 });
+	for (int i = 0; i < 8; i++) {
+		vector<Parent> p = vecParentVec[i];
+		vector<int> c = vecCtrlVec[i];
+		int s = scoreVec[i];
+		int g = global_iteration_counter;
+		GAOPT.addEntry(c, p, s, g);
+		opt_empty++;
 	}
 }
 

@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "Area.h"
 #include "ctrlVector.h"
+#include <random>
 
 struct CtrlStr {
 	std::vector<int> ctrlVec;
@@ -17,6 +18,12 @@ struct CtrlStr {
 	}
 	void setIntScore(int t) { intScore = t; }
 };
+struct SortCtrlDesc {
+	bool operator() (CtrlStr a, CtrlStr b) {
+		return (a.score > b.score);
+	}
+};
+
 struct ParentStr {
 	std::vector<Parent> parentVec;
 	int score;
@@ -29,8 +36,13 @@ struct ParentStr {
 		gen = g;
 	}
 	void setIntScore(int t) { intScore = t; }
-};
 
+};
+struct SortParentDesc {
+	bool operator() (ParentStr a, ParentStr b) {
+		return (a.score > b.score);
+	}
+};
 class GaOpt
 {
 	/* 
@@ -54,15 +66,25 @@ public:
 	GaOpt();
 
 	/* ADD ENTRY : ctrl-vector, parent-child, score, iteration */
-	void addCtrlEntry(std::vector<int>, std::vector<Parent>, int, int);
+	void addEntry(std::vector<int>, std::vector<Parent>, int, int);
 
 	/* PROPAGATE SCORES OVER GENERATIONS */
 	void propagateScores();
-	
+
+	/* RETRIEVE RESULTS */
+	std::vector<CtrlStr> getCtrl(int);
+	std::vector<ParentStr> getParent(int);
+
+	/* RANDOM SHUFFLES */
+	int myrandom(int);
+
+	/* RESTRICT */
+	void restrict(int t);
+
 private:
 	std::vector<CtrlStr> ctrlStrVec;
 	std::vector<CtrlStr> popCtrlStrVec;
-	std:: vector<ParentStr> parentStrVec;
+	std::vector<ParentStr> parentStrVec;
 	std::vector<ParentStr> popParentStrVec;
 };
 

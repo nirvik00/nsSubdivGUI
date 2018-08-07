@@ -37,7 +37,7 @@ class ofApp : public ofBaseApp{
 
 		/*my global variables*/
 		Area ar;
-		GaOpt gaOpt;
+		GaOpt GAOPT;
 		vector<colArStr> colrArStructVec = ar.genColorVec();
 		int NUM = 10;
 
@@ -56,6 +56,7 @@ class ofApp : public ofBaseApp{
 		/* GLOBAL COUNTER FOR NUMBER OF CHANGES */
 		int global_image_counter = 0;
 		int global_iteration_counter = 0;
+		int opt_empty = 0;
 
 		/* GUI */
 		ofxPanel gui;
@@ -67,6 +68,6 @@ class ofApp : public ofBaseApp{
 		/* GLOBAL VECTORS FOR DNA */
 		vector< vector<int> > vecCtrlVec;		// collection of control vectors for this generations
 		vector< vector<Parent> > vecParentVec;	// collection of family trees for this generations
-		
+		vector<GaOpt> gaOptVec;					// collect all gaOpt for this generation
 };
 
