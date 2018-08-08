@@ -61,6 +61,8 @@ class ofApp : public ofBaseApp{
 		/* GUI */
 		ofxPanel gui;
 		ofxIntSlider gen0, gen1, gen2, gen3, gen4, gen5, gen6, gen7;
+		ofxIntSlider propagate, restrictPop, restrictCross;
+		ofxToggle randomTGL;
 		
 		/* GUI SCORES */
 		vector<int>scoreVec;					// score of all sliders taken per generation

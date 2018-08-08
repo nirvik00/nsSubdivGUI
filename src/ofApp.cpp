@@ -10,14 +10,19 @@ void ofApp::setup() {
 	srand(time(NULL));
 	/* GUI */
 	gui.setup("SCORES");
-	gui.add(gen0.setup("Score Gen-0", 1, 0, 100));
-	gui.add(gen1.setup("Score Gen-1", 1, 0, 100));
-	gui.add(gen2.setup("Score Gen-2", 1, 0, 100));
-	gui.add(gen3.setup("Score Gen-3", 1, 0, 100));
-	gui.add(gen4.setup("Score Gen-4", 1, 0, 100));
-	gui.add(gen5.setup("Score Gen-5", 1, 0, 100));
-	gui.add(gen6.setup("Score Gen-6", 1, 0, 100));
-	gui.add(gen7.setup("Score Gen-7", 1, 0, 100));
+	gui.add(gen0.setup("Score Gen-0", 0, 0, 10)); 
+	gui.add(gen1.setup("Score Gen-1", 0, 0, 10));
+	gui.add(gen2.setup("Score Gen-2", 0, 0, 10));
+	gui.add(gen3.setup("Score Gen-3", 0, 0, 10));
+	gui.add(gen4.setup("Score Gen-4", 0, 0, 10));
+	gui.add(gen5.setup("Score Gen-5", 0, 0, 10));
+	gui.add(gen6.setup("Score Gen-6", 0, 0, 10));
+	gui.add(gen7.setup("Score Gen-7", 0, 0, 10));
+	gui.add(propagate.setup("Propagate Scores", 10, 1, 100));
+	gui.add(restrictPop.setup("Restrict Population", 50, 1, 100));
+	gui.add(restrictCross.setup("Restrict Crossing", 10, 1, 100));
+	gui.add(randomTGL.setup("Large Randomization", false));
+
 	ofSetWindowTitle("Subdivision Dashboard");
 
 	/* AREA SUBDIVISION, CONTROL VECTORS, GEOMETRY EQUIVALENCE */
@@ -52,42 +57,39 @@ void ofApp::nsNextGen() {
 	vecCtrlVec.clear();			//	vector of control vector : for all iterations in 1 generation
 	scoreVec.clear();			//	vector of scores for 1 generation
 
-	cout << "next generation : " << global_iteration_counter << endl;
+	std::cout << "next generation : " << global_iteration_counter << endl;
 	if (opt_empty == 0) {
 		global_iteration_counter = 0;
 		setup();
 	}
-	GAOPT.propagateScores();
+	
+	if (randomTGL == 1) {
+		GAOPT.addNewParent(10);
+		GAOPT.addNewControl(10,10);
+	}
+
+	GAOPT.propagateScores(propagate);
 	
 	vector<CtrlStr> cV = GAOPT.getCtrl(8); 
-	for (int i = 0; i < cV.size(); i++) {
-		vecCtrlVec.push_back(cV[i].ctrlVec);
-	}
+	for (int i = 0; i < cV.size(); i++)	vecCtrlVec.push_back(cV[i].ctrlVec);
 
 	vector<ParentStr> pV = GAOPT.getParent(8);
-	for (int i = 0; i < pV.size(); i++) {
-		vecParentVec.push_back(pV[i].parentVec);
-	}
-
-	GAOPT.restrict(1000);
+	for (int i = 0; i < pV.size(); i++) vecParentVec.push_back(pV[i].parentVec);
+	
+	std::cout << "restrictPop: " << restrictPop << " restrictCross: " << restrictCross << endl;
+	GAOPT.restrictPopulation(restrictPop, restrictCross);
 
 	int U = 5; int V = 2; int E = -1;
 	for (unsigned int i = 300; i < 300 * U; i += 325) {
 		for (unsigned int j = 0; j < 300 * V; j += 325) {
 			E++;
-
 			a = Pt(50 + i, 50 + j);
 			b = Pt(a.x + 300, a.y);
 			c = Pt(a.x + 300, b.y + 150);
 			d = Pt(a.x, c.y);
-
 			float totalArea = ar.getTotalAr();	
 			vector<Parent> parentVec = vecParentVec[E];
 			vector<int> cV = vecCtrlVec[E];
-			for (int m = 0; m < cV.size(); m++) {
-				cout << cV[m] << ", ";
-			}
-			cout << endl;
 			/* RECTANGLE */
 			Rect R0;									// Initialize the rectangle
 			Rect r = R0.genIniRect(a, 1, 2, totalArea); // setup the initial rectangle
@@ -133,6 +135,7 @@ void ofApp::nsNextGen() {
 }
 
 void ofApp::nsIniGen(){
+	cout << "Initial Generation" << endl;
 	/* ONE RECT ONLY *///int U = 2; int V = 1;
 	/* MULTIPLE RECTS */int U = 5; int V = 2;
 	for (unsigned int i = 300; i < 300 * U; i += 325) {
@@ -186,13 +189,16 @@ void ofApp::draw() {
 	ofBackground(255, 255, 255);
 	ofSetColor(255, 255, 255); ofFill(); ofDrawRectangle(0, 0, 1200, 750); ofNoFill();
 	ofSetColor(0, 0, 0);
-	ofDrawBitmapString("KeyBoard Controls\n-----------------", 10, 485);
-	ofDrawBitmapString("Press 'n' to create next generation", 10, 515);
-	ofDrawBitmapString("Press 'c' to change color scheme", 10, 530);
-	ofDrawBitmapString("Press 'p' to take a screenshot", 10, 545);
-	ofDrawBitmapString("Press 'm' to save & display metrics", 10, 560);
-	ofDrawBitmapString("Contact\n-------", 10, 600);
-	ofDrawBitmapString("Nirvik Saha (GIT)\nDennis R Shelden (GIT)\nJohn R Haymaker (P+W)", 10, 630);
+	float YD = 300;
+	ofDrawBitmapString("KeyBoard Controls\n-----------------", 10, YD+285);
+	ofDrawBitmapString("Press 'n' to create next generation", 10, YD + 315);
+	ofDrawBitmapString("Press 'c' to change color scheme", 10, YD + 330);
+	ofDrawBitmapString("Press 'p' to take a screenshot", 10, YD + 345);
+	ofDrawBitmapString("Press 'm' to save & display metrics", 10, YD + 360);
+	/*
+	ofDrawBitmapString("Contact\n-------", 10, 620);
+	ofDrawBitmapString("Nirvik Saha (GIT)\nDennis R Shelden (GIT)\nJohn R Haymaker (P+W)", 10, 650);
+	*/
 	for (int i = 0; i < vecBoundaryRect.size(); i++) {
 		Rect R = vecBoundaryRect[i];
 		vecBoundaryRect[i].drawRect(3);
@@ -201,14 +207,14 @@ void ofApp::draw() {
 		ofDrawBitmapString(to_string(i), R.getA().x - 20, R.getA().y + 10);
 	}
 	/* COLOR OF RECTANGLES - LEGEND */
-	ofDrawBitmapString("Legend (Color & Area)\n---------------------", 10, 210);
+	ofDrawBitmapString("Legend (Color & Area)\n---------------------", 10, YD);
 	for (int i = 0; i < colrArStructVec.size(); i++) {
 		float this_ar = colrArStructVec[i].area;
 		int re = colrArStructVec[i].re;
 		int gr = colrArStructVec[i].gr;
 		int bl = colrArStructVec[i].bl;
 		ofSetColor(re, gr, bl); 
-		float x = 20; float y = 225+25*i; float w = 15; float h = 15;
+		float x = 20; float y = YD+25+25*i; float w = 15; float h = 15;
 		ofFill();  ofDrawRectangle(x, y, w, h);
 		ofSetColor(0, 0, 0);
 		string pr = to_string(i) + ". " + to_string((int)this_ar);

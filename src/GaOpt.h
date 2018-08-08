@@ -69,17 +69,21 @@ public:
 	void addEntry(std::vector<int>, std::vector<Parent>, int, int);
 
 	/* PROPAGATE SCORES OVER GENERATIONS */
-	void propagateScores();
+	void propagateScores(int);
 
 	/* RETRIEVE RESULTS */
 	std::vector<CtrlStr> getCtrl(int);
 	std::vector<ParentStr> getParent(int);
 
 	/* RESTRICT */
-	void restrict(int t);
+	void restrictPopulation(int , int); //delete excess pop ; induce crossings
 
 	/* CROSS-OVER */
-	std::vector<CtrlStr> crossControl();
+	std::vector<CtrlStr> crossControl(int);
+
+	/* ADD NEW MARKERS */
+	void addNewParent(int);
+	void addNewControl(int, int);
 
 private:
 	std::vector<CtrlStr> ctrlStrVec;

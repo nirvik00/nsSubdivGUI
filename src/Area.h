@@ -26,17 +26,17 @@ struct Parent {
 		R = R_;
 	}
 	void display() {
-		cout << "Parent name: ";
-		cout << name << "Areas : "; 
+		std::cout << "Parent name: ";
+		std::cout << name << "Areas : "; 
 		for (int i = 0; i < areas.size(); i++) {
 			if (i < areas.size() - 1) {
-				cout << areas[i] << ", ";
+				std::cout << areas[i] << ", ";
 			}
 			else {
-				cout << areas[i];
+				std::cout << areas[i];
 			}
 		}
-		cout << endl;
+		std::cout << endl;
 	}
 };
 
